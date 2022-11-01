@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "TravelPlanner",
+    "slug": "TravelPlanner",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "TravelPlanner"
+}
