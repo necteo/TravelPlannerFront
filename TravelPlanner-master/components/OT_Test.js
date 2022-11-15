@@ -55,11 +55,18 @@ export const Test = ({}) => {
         }}
         onKeyPress={(e) => {
           const { key } = e.nativeEvent;
-          CompositionEvent.bind(key);
+          //CompositionEvent.bind(key);
           let addStr = name;
+          let copy = "";
           if (key == "Backspace") {
           } else {
-            addStr = name + key;
+            if (key.length != 1) {
+              copy = key.substring(key.length - 1, key.length);
+            } else {
+              copy = key;
+            }
+            copy = key;
+            addStr = copy;
           }
           setName(addStr);
         }}
