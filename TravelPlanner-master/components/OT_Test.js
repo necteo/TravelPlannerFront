@@ -3,24 +3,27 @@ import { View, TextInput, Text, ScrollView } from "react-native";
 import { styles } from "../Styles";
 import React, { useState, KeyboardEvent } from "react";
 
-//KeyboardEvent.nativeEvent.isComposing = false;
 export const Test = ({}) => {
-  const [name, setName] = useState("");
+  const [strings, setStrings] = useState("");
 
-  const updateTest = (text) =>
-    fetch("https://112.217.167.202:8000", {
+  const updateTest = (text) => {
+    fetch("http://192.168.0.5:3000/OtTest/change", {
       method: "POST",
       headers: {
-        Accept: "application/json",
+        //Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        updateIndex: 1,
-        updateString: { text },
+        name: text,
       }),
-    }).then((res) => {
-      name = text;
-    });
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        //console.log("Success :" + data.name);
+        setStrings(data.name);
+      })
+      .catch((error) => console.log("Error : " + error));
+  };
 
   return (
     <ScrollView>
@@ -33,7 +36,7 @@ export const Test = ({}) => {
           fontSize: 20,
         }}
       >
-        {name}
+        {strings}
       </Text>
       <TextInput
         style={{
@@ -43,32 +46,7 @@ export const Test = ({}) => {
           fontSize: 20,
         }}
         onChangeText={(text) => {
-          setName(text);
-        }}
-      ></TextInput>
-      <TextInput
-        style={{
-          borderWidth: 3,
-          height: 200,
-          padding: 20,
-          fontSize: 20,
-        }}
-        onKeyPress={(e) => {
-          const { key } = e.nativeEvent;
-          //CompositionEvent.bind(key);
-          let addStr = name;
-          let copy = "";
-          if (key == "Backspace") {
-          } else {
-            if (key.length != 1) {
-              copy = key.substring(key.length - 1, key.length);
-            } else {
-              copy = key;
-            }
-            copy = key;
-            addStr = copy;
-          }
-          setName(addStr);
+          updateTest(text);
         }}
       ></TextInput>
     </ScrollView>
