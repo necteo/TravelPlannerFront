@@ -6,15 +6,16 @@ import React, { useState, KeyboardEvent } from "react";
 import { PostTools } from "./PostTool";
 
 export const Test = ({}) => {
-  const postTool = new PostTools("http://192.168.0.6:3000/");
+  const postTool = new PostTools("http://192.168.0.4:3000/");
   const [strings, setStrings] = useState("");
 
-  const updateTest = (text) => {
-    let data = postTool.postWithData(
+  const updateTest = async (text) => {
+    let data = await postTool.postWithData(
       "OtTest/change",
       JSON.stringify({ name: text })
     );
-    //console.log(data);
+    console.log("updateTest");
+    console.log(data);
     //setStrings(data);
   };
 

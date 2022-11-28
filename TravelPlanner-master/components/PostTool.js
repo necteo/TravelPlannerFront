@@ -1,4 +1,5 @@
-//http://192.168.0.6:3000/
+//http://192.168.0.4:3000/
+let postData;
 export class PostTools {
   constructor(ip) {
     this.serverIp = ip;
@@ -14,20 +15,18 @@ export class PostTools {
       .catch((error) => console.log("Error : " + error));
   }
 
-  postWithData(url, reqData) {
-    fetch(this.serverIp + url, {
+  async postWithData(url, reqData) {
+    let res;
+    const data = await fetch(this.serverIp + url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: reqData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(JSON.stringify(data));
-        return JSON.stringify(data);
-      })
-      .catch((error) => console.log("Error : " + error));
-    //return JSON.stringify(data);
+    }).then((response) => response.json());
+    res = JSON.stringify(data);
+    console.log("postWithData");
+    console.log(res);
+    return res;
   }
 }
