@@ -92,6 +92,7 @@ export const Plans = ({ viewHeight, plans, navigation }) => {
   plans = {
     1: { title: "경주여행", date: "2022-11-02~2022-11-04", members: ["kim"] },
   };
+
   return (
     <View style={{ alignItems: "center" }}>
       {Object.keys(plans).length === 0 ? (
