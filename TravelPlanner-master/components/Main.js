@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
+import { PostTools } from "./PostTool";
 
 const Member = ({ id }) => {
   return (
