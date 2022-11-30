@@ -30,6 +30,7 @@ export const Destination = ({ navigation }) => {
             height: 20,
             borderBottomWidth: 1,
           }}
+          onChangeText={(text) => {}}
         >
           제목을 입력하세요
         </TextInput>

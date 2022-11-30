@@ -1,5 +1,4 @@
 //http://192.168.0.6:3000/
-let postData;
 export class PostTools {
   constructor(ip) {
     this.serverIp = ip;
