@@ -1,22 +1,26 @@
+<<<<<<< HEAD
 //http://192.168.0.4:3000/
+=======
+//http://192.168.0.6:3000/
+>>>>>>> upstream/master
 let postData;
 export class PostTools {
   constructor(ip) {
     this.serverIp = ip;
   }
-  post(url) {
-    fetch(this.serverIp + url, {
+  async post(url) {
+    const data = await fetch(this.serverIp + url, {
       method: "POST",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        return JSON.stringify(data);
-      })
-      .catch((error) => console.log("Error : " + error));
+    }).then((response) => response.json());
+
+    return JSON.stringify(data);
   }
 
   async postWithData(url, reqData) {
+<<<<<<< HEAD
     let res;
+=======
+>>>>>>> upstream/master
     const data = await fetch(this.serverIp + url, {
       method: "POST",
       headers: {
@@ -24,9 +28,14 @@ export class PostTools {
       },
       body: reqData,
     }).then((response) => response.json());
+<<<<<<< HEAD
     res = JSON.stringify(data);
     console.log("postWithData");
     console.log(res);
     return res;
+=======
+
+    return JSON.stringify(data);
+>>>>>>> upstream/master
   }
 }

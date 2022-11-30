@@ -16,7 +16,12 @@ export const Test = ({}) => {
     );
     console.log("updateTest");
     console.log(data);
+<<<<<<< HEAD
     //setStrings(data);
+=======
+    let jsonData = JSON.parse(data);
+    setStrings(jsonData.name);
+>>>>>>> upstream/master
   };
 
   return (

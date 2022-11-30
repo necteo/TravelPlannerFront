@@ -11,7 +11,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-      <Test></Test>
+      <Body></Body>
     </View>
   );
 }

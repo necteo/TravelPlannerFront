@@ -21,13 +21,15 @@ import { TouchableOpacity } from "react-native";
 import { TabNavigator } from "./TabNavigator";
 import { Tourist } from "./Tourist";
 import { Vote } from "./Vote";
-
+import { PostTools } from "./PostTool";
 const { height, width } = Dimensions.get("window");
 const viewHeight = height;
 
 const Stack = createNativeStackNavigator();
 
 export const Body = () => {
+  const postTool = new PostTools("http://192.168.0.6:3000/");
+
   const [plans, setPlans] = useState({});
   const [modalVisibleNew, setModalVisibleNew] = useState(false);
   const [modalVisibleCode, setModalVisibleCode] = useState(false);
