@@ -4,7 +4,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { PostTools } from "./PostTool";
 
 export const Destination = ({ navigation }) => {
-  const postTool = new PostTools("http://192.168.0.6:3000/");
+  const postTool = new PostTools();
   const [detail, setDetail] = useState("");
 
   return (
