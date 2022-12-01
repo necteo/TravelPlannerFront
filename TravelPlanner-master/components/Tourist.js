@@ -16,7 +16,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { styles } from "../Styles";
 import { PostTools } from "./PostTool";
 
-const postTool = new PostTools("http://192.168.0.6:3000/");
+const postTool = new PostTools();
 //read Place
 
 export const Tourist = ({ navigation, route }) => {

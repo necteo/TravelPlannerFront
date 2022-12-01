@@ -6,7 +6,7 @@ import React, { useState, KeyboardEvent } from "react";
 import { PostTools } from "./PostTool";
 
 export const Test = ({}) => {
-  const postTool = new PostTools("http://192.168.0.6:3000/");
+  const postTool = new PostTools();
   const [strings, setStrings] = useState("");
 
   const updateTest = async (text) => {

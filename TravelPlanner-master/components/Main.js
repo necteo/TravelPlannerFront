@@ -3,7 +3,7 @@ import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PostTools } from "./PostTool";
 
-const postTool = new PostTools("http://192.168.0.6:3000/");
+const postTool = new PostTools();
 
 const Member = ({ id }) => {
   return (
