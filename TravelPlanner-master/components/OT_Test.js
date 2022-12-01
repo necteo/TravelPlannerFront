@@ -10,6 +10,7 @@ export const Test = ({}) => {
   const [strings, setStrings] = useState("");
 
   const updateTest = async (text) => {
+    console.log(strings);
     let data = await postTool.postWithData(
       "OtTest/change",
       JSON.stringify({ name: text })

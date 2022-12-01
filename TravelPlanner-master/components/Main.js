@@ -94,6 +94,7 @@ export const Plans = ({ viewHeight, plans, navigation }) => {
   plans = {
     1: { title: "경주여행", date: "2022-11-02~2022-11-04", members: ["kim"] },
   };
+  //데이터 받아와야함
 
   return (
     <View style={{ alignItems: "center" }}>

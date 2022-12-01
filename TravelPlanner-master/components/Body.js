@@ -33,6 +33,32 @@ export const Body = () => {
   const [plans, setPlans] = useState({});
   const [modalVisibleNew, setModalVisibleNew] = useState(false);
   const [modalVisibleCode, setModalVisibleCode] = useState(false);
+
+  //NEW
+  var title = "";
+  var id = "";
+
+  const newPlan = async () => {
+    await postTool.postWithData(
+      "Main/create",
+      JSON.stringify({
+        name: title,
+        member_id: id,
+      })
+    );
+  };
+  //CODE
+  var code = "";
+
+  const newPlanWithCode = async () => {
+    await postTool.postWithData(
+      "Main/create/code",
+      JSON.stringify({
+        share_code: code,
+      })
+    );
+  };
+
   const headerLeft = () => (
     <Image
       source={require("../icon/none_image.png")}
@@ -132,17 +158,6 @@ export const Body = () => {
               headerLeft,
             })}
           />
-          {/* <View>
-        <ScrollView horizontal contentContainerStyle={styles.timeline}>
-          <Text>aaaa</Text>
-          <Text>aaaa</Text>
-          <Text>aaaa</Text>
-        </ScrollView>
-      </View> */}
-          {/* <Destination></Destination>
-          <Plans viewHeight={viewHeight}></Plans>
-          <NonPlan viewHeight={viewHeight}></NonPlan>
-          <TravelGraph viewHeight={viewHeight}></TravelGraph> */}
         </Stack.Navigator>
       </NavigationContainer>
       <Modal
@@ -166,24 +181,30 @@ export const Body = () => {
         >
           <View style={{ flexDirection: "row", marginTop: 10 }}>
             <Text style={{ fontSize: 30 }}>제목 : </Text>
-            <TextInput style={{ fontSize: 30, width: 180 }}></TextInput>
+            <TextInput
+              onChangeText={(text) => {
+                title = text;
+              }}
+              style={{ fontSize: 30, width: 180 }}
+            ></TextInput>
           </View>
-          <View style={{ flexDirection: "row", marginTop: 10 }}>
-            <Text style={{ fontSize: 20 }}>날짜 :</Text>
-
-            <TextInput style={{ fontSize: 20, width: 80 }}></TextInput>
-            <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>
-              ~
-            </Text>
-            <TextInput style={{ fontSize: 20, width: 80 }}></TextInput>
-          </View>
-          <View style={{ flexDirection: "row", marginTop: 10 }}>
+          <View
+            style={{ flexDirection: "row", marginTop: 10, marginBottom: 10 }}
+          >
             <Text style={{ fontSize: 20 }}>아이디 : </Text>
-            <TextInput style={{ fontSize: 20, width: 80 }}></TextInput>
+            <TextInput
+              onChangeText={(text) => {
+                id = text;
+              }}
+              style={{ fontSize: 20, width: 80 }}
+            ></TextInput>
           </View>
           <Pressable
             style={[styles.button, styles.buttonClose]}
-            onPress={() => setModalVisibleNew(!modalVisibleNew)}
+            onPress={() => {
+              setModalVisibleNew(!modalVisibleNew);
+              newPlan();
+            }}
           >
             <Text style={styles.textStyle}>생성</Text>
           </Pressable>
@@ -211,12 +232,20 @@ export const Body = () => {
         >
           <View style={{ flexDirection: "row", marginTop: 10 }}>
             <Text style={{ fontSize: 25 }}>코드 : </Text>
-            <TextInput style={{ fontSize: 25, width: 180 }}></TextInput>
+            <TextInput
+              onChangeText={(text) => {
+                code = text;
+              }}
+              style={{ fontSize: 25, width: 180 }}
+            ></TextInput>
           </View>
 
           <Pressable
             style={[styles.button, styles.buttonClose]}
-            onPress={() => setModalVisibleCode(!modalVisibleCode)}
+            onPress={() => {
+              setModalVisibleCode(!modalVisibleCode);
+              newPlanWithCode();
+            }}
           >
             <Text style={styles.textStyle}>생성</Text>
           </Pressable>
