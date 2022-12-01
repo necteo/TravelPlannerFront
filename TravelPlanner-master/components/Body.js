@@ -28,7 +28,7 @@ const viewHeight = height;
 const Stack = createNativeStackNavigator();
 
 export const Body = () => {
-  const postTool = new PostTools("http://192.168.0.6:3000/");
+  const postTool = new PostTools("http:/180.71.161.34/:3000/");
 
   const [plans, setPlans] = useState({});
   const [modalVisibleNew, setModalVisibleNew] = useState(false);
