@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Dimensions,
@@ -22,6 +22,9 @@ import { TabNavigator } from "./TabNavigator";
 import { Tourist } from "./Tourist";
 import { Vote } from "./Vote";
 import { PostTools } from "./PostTool";
+import { SavePlans } from "./SavePlans";
+import { GetPlans } from "./GetPlans";
+import { containsKey } from "./containsKey";
 const { height, width } = Dimensions.get("window");
 const viewHeight = height;
 
@@ -34,29 +37,47 @@ export const Body = () => {
   const [modalVisibleNew, setModalVisibleNew] = useState(false);
   const [modalVisibleCode, setModalVisibleCode] = useState(false);
 
-  //NEW
+  useEffect(() => {
+    SavePlans(plans);
+  }, [plans]);
+
+  //create trip
   var title = "";
   var id = "";
 
   const newPlan = async () => {
-    await postTool.postWithData(
-      "Main/create",
+    const strp = await postTool.postWithData(
+      "Main/trip/create",
       JSON.stringify({
         name: title,
         member_id: id,
       })
     );
+    const p = JSON.parse(strp);
+    console.log(strp);
+
+    //console.log(p);
+    const plan = await GetPlans();
+    console.log(plan);
+    if (plan === null) {
+      setPlans(p);
+    } else {
+      setPlans({ ...plan, ...p });
+    }
   };
-  //CODE
+  //create trip by code
   var code = "";
 
   const newPlanWithCode = async () => {
-    await postTool.postWithData(
-      "Main/create/code",
+    const p = await postTool.postWithData(
+      "Main/trip/create/code",
       JSON.stringify({
         share_code: code,
       })
     );
+    const plan = GetPlans();
+    setPlans({ ...plan, p });
+    SavePlans(plans);
   };
 
   const headerLeft = () => (
@@ -65,6 +86,7 @@ export const Body = () => {
       style={{ width: 45, height: 35 }}
     ></Image>
   );
+  //header
   const headerRight = () => (
     <View style={{ flexDirection: "row" }}>
       <TouchableOpacity onPress={() => setModalVisibleCode(true)}>
@@ -112,14 +134,19 @@ export const Body = () => {
         <Stack.Navigator>
           <Stack.Screen
             name="Plans"
-            component={Plans}
+            children={({ navigation }) => (
+              <Plans
+                viewHeight={viewHeight}
+                plans={plans}
+                navigation={navigation}
+              />
+            )}
             options={() => ({
               title: "",
               headerStyle: styles.header,
               headerLeft,
               headerRight,
             })}
-            plans={plans}
           />
           <Stack.Screen
             name="Tourist"

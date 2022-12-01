@@ -8,6 +8,7 @@ import {
   TextInput,
   Keyboard,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import Svg, { Line } from "react-native-svg";
 import styled from "styled-components";
@@ -73,7 +74,7 @@ const Box = styled.View`
 `;
 const AnimatedBox = Animated.createAnimatedComponent(Box);
 
-export const TravelGraph = ({ navigation }) => {
+export const TravelGraph = ({ navigation, route }) => {
   var xOffset,
     yOffset = 0;
   const xDiff = width - CONTENTS_WIDTH >= 0 ? 0 : width - CONTENTS_WIDTH;
@@ -211,29 +212,35 @@ export const TravelGraph = ({ navigation }) => {
                   {infos.isDup ? (
                     <View style={{ width: locWidth[yindex][xindex] }}></View>
                   ) : (
-                    <View
-                      style={{
-                        width: locWidth[yindex][xindex],
-                        borderWidth: 1,
-                        borderRadius: 10,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
+                    <Pressable
+                      onPress={() =>
+                        navigation.navigate("Destination", { trip_id: "id" })
+                      }
                     >
-                      <Entypo
-                        style={{ paddingLeft: 5 }}
-                        name="image"
-                        size={15}
-                        color="black"
-                      />
-                      <View style={{ marginBottom: 20 }}>
-                        <Text style={{}}>{infos.startTime}</Text>
-                        <TextInput style={styles.text}>
-                          {infos.location}
-                        </TextInput>
+                      <View
+                        style={{
+                          width: locWidth[yindex][xindex],
+                          borderWidth: 1,
+                          borderRadius: 10,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Entypo
+                          style={{ paddingLeft: 5 }}
+                          name="image"
+                          size={15}
+                          color="black"
+                        />
+                        <View style={{ marginBottom: 20 }}>
+                          <Text style={{}}>{infos.startTime}</Text>
+                          <TextInput style={styles.text}>
+                            {infos.location}
+                          </TextInput>
+                        </View>
                       </View>
-                    </View>
+                    </Pressable>
                   )}
 
                   {xindex === plan.length - 1 ? null : infos.isDup ? (

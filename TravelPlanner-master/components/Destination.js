@@ -96,7 +96,7 @@ export const Destination = ({ navigation }) => {
         </View>
       </View>
       <TouchableOpacity
-        style={{ marginTop: 440 }}
+        style={{ marginTop: 340 }}
         onPress={() => navigation.navigate("TravelGraph")}
       >
         <AntDesign name="pluscircleo" size={48} color="black" />

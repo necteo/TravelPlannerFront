@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PostTools } from "./PostTool";
+
+const postTool = new PostTools("http://192.168.0.6:3000/");
 
 const Member = ({ id }) => {
   return (
@@ -58,7 +61,7 @@ const Plan = ({ plan, navigation }) => {
         ></Image>
         <View style={{ marginLeft: 10 }}>
           <View style={{ flexDirection: "row" }}>
-            <Text style={{ fontSize: 25, width: 215 }}>{plan.title}</Text>
+            <Text style={{ fontSize: 25, width: 215 }}>{plan.name}</Text>
             <Image
               source={require("../icon/dots.png")}
               style={{ height: 40, width: 40 }}
@@ -76,7 +79,11 @@ const Plan = ({ plan, navigation }) => {
             style={{ height: 25, width: 45, marginLeft: 5 }}
             source={require("../icon/people.png")}
           ></Image>
-          <TouchableOpacity onPress={() => navigation.navigate("Tourist")}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("Tourist", { trip_id: plan.trip_id })
+            }
+          >
             <Image
               style={{ height: 45, width: 45, marginLeft: 15 }}
               source={require("../icon/right_arrow.png")}
@@ -84,17 +91,13 @@ const Plan = ({ plan, navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-      <Members members={plan.members}></Members>
+      {/* <Members members={plan.members}></Members> */}
     </View>
   );
 };
 
 export const Plans = ({ viewHeight, plans, navigation }) => {
-  plans = {
-    1: { title: "경주여행", date: "2022-11-02~2022-11-04", members: ["kim"] },
-  };
   //데이터 받아와야함
-
   return (
     <View style={{ alignItems: "center" }}>
       {Object.keys(plans).length === 0 ? (
