@@ -25,27 +25,39 @@ import { PostTools } from "./PostTool";
 import { SavePlans } from "./SavePlans";
 import { GetPlans } from "./GetPlans";
 import { containsKey } from "./containsKey";
+import { RadioButton } from "react-native-paper";
+import { SaveMembers } from "./SaveMembers";
+import { GetMembers } from "./GetMembers";
 const { height, width } = Dimensions.get("window");
 const viewHeight = height;
+
+const postTool = new PostTools();
 
 const Stack = createNativeStackNavigator();
 
 export const Body = () => {
-  const postTool = new PostTools();
-
   const [plans, setPlans] = useState({});
+  const [members, setMembers] = useState({});
   const [modalVisibleNew, setModalVisibleNew] = useState(false);
   const [modalVisibleCode, setModalVisibleCode] = useState(false);
+  const [isNew, setIsNew] = useState(false);
+  const [checked, setChecked] = useState("first");
+  const [codeType, setCodeType] = useState("참가");
 
   useEffect(() => {
     SavePlans(plans);
   }, [plans]);
 
+  useEffect(() => {
+    SaveMembers(members);
+  }, [members]);
+
   //create trip
-  var title = "";
-  var id = "";
+  var title = null;
+  var id = null;
 
   const newPlan = async () => {
+    if (id == null || title == null) return;
     const strp = await postTool.postWithData(
       "Main/trip/create",
       JSON.stringify({
@@ -54,30 +66,66 @@ export const Body = () => {
       })
     );
     const p = JSON.parse(strp);
-    console.log(strp);
 
-    //console.log(p);
     const plan = await GetPlans();
-    console.log(plan);
+    // const member = await GetMembers();
+
+    // const strm = {
+    //   trip_id: p.trip_id,
+    //   member_id: id,
+    // };
+
     if (plan === null) {
       setPlans(p);
+      // setMembers(strm);
     } else {
       setPlans({ ...plan, ...p });
+      // setMembers(...member, ...strm);
     }
+    title = null;
+    id = null;
+  };
+
+  var code = "";
+  //join trip by code
+  const joinPlanWithCode = async () => {
+    if (id == null || code == null) return;
+    const strp = await postTool.postWithData(
+      "Main/trip/join/code",
+      JSON.stringify({
+        write_code: code,
+        member_id: id,
+      })
+    );
+    const p = JSON.parse(strp);
+    console.log(p[0]);
+    console.log(p.length);
+    if (p.length != 0) {
+      const plan = await GetPlans();
+      console.log(plan);
+      setPlans({ ...plan, [p[0].trip_id]: { ...p[0] } });
+      SavePlans(plans);
+    }
+
+    code = null;
+    id = null;
   };
   //create trip by code
-  var code = "";
-
   const newPlanWithCode = async () => {
+    if (id == null || code == null) return;
     const p = await postTool.postWithData(
       "Main/trip/create/code",
       JSON.stringify({
         share_code: code,
+        member_id: id,
       })
     );
     const plan = GetPlans();
-    setPlans({ ...plan, p });
+    setPlans({ ...plan, ...p });
     SavePlans(plans);
+
+    code = null;
+    id = null;
   };
 
   const headerLeft = () => (
@@ -122,6 +170,24 @@ export const Body = () => {
       </TouchableOpacity>
     </View>
   );
+  const headerRightGraph = () => (
+    <TouchableOpacity onPress={() => setIsNew(true)}>
+      <Text
+        style={{
+          borderRadius: 20,
+          borderWidth: 3,
+          fontSize: 16,
+          width: 55,
+          height: 40,
+          textAlign: "center",
+          marginLeft: 10,
+          paddingTop: 8,
+        }}
+      >
+        NEW
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <View
@@ -139,6 +205,8 @@ export const Body = () => {
                 viewHeight={viewHeight}
                 plans={plans}
                 navigation={navigation}
+                isNew={isNew}
+                setIsNew={setIsNew}
               />
             )}
             options={() => ({
@@ -173,7 +241,7 @@ export const Body = () => {
               title: "",
               headerStyle: styles.header,
               headerLeft,
-              headerRight,
+              headerRight: headerRightGraph,
             })}
           />
           <Stack.Screen
@@ -266,12 +334,51 @@ export const Body = () => {
               style={{ fontSize: 25, width: 180 }}
             ></TextInput>
           </View>
-
+          <View
+            style={{
+              flexDirection: "row",
+              marginTop: 10,
+              marginBottom: 10,
+            }}
+          >
+            <Text style={{ fontSize: 20 }}>아이디 : </Text>
+            <TextInput
+              onChangeText={(text) => {
+                id = text;
+              }}
+              style={{ fontSize: 20, width: 80 }}
+            ></TextInput>
+          </View>
+          {/* 라디오 코드 식별 */}
+          <View style={{ flexDirection: "row" }}>
+            <RadioButton.Item
+              label="참가코드"
+              value="first"
+              status={checked === "first" ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked("first");
+                setCodeType("참가");
+              }}
+            />
+            <RadioButton.Item
+              label="복사코드"
+              value="second"
+              status={checked === "second" ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked("second");
+                setCodeType("복사");
+              }}
+            />
+          </View>
           <Pressable
             style={[styles.button, styles.buttonClose]}
             onPress={() => {
               setModalVisibleCode(!modalVisibleCode);
-              newPlanWithCode();
+              if (codeType == "참가") {
+                joinPlanWithCode();
+              } else if (codeType == "복사") {
+                newPlanWithCode();
+              }
             }}
           >
             <Text style={styles.textStyle}>생성</Text>

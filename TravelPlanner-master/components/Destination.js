@@ -1,11 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Image, Text, TextInput, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { PostTools } from "./PostTool";
 
-export const Destination = ({ navigation }) => {
+export const Destination = ({ navigation, trip_id, plan_id, index, isNew }) => {
   const postTool = new PostTools();
   const [detail, setDetail] = useState("");
+
+  useEffect(() => {
+    if (isNew) {
+      // 새로운 PlanDetail 생성
+    } else {
+      // 넘겨온 데이터 표시
+    }
+  }, []);
 
   return (
     <View

@@ -8,9 +8,9 @@ import {
   Modal,
   TextInput,
   Pressable,
-  RadioGroup,
-  Radio,
+  Alert,
 } from "react-native";
+import { RadioButton } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { AntDesign } from "@expo/vector-icons";
 import { styles } from "../Styles";
@@ -22,10 +22,8 @@ const postTool = new PostTools();
 export const Tourist = ({ navigation, route }) => {
   const [places, setPlaces] = useState();
   const [modalVisiblePlace, setModalVisiblePlace] = useState(false);
-  const [value, setValue] = useState("TOURIST_SPOT");
+  const [checked, setChecked] = React.useState("first");
 
-  console.log("route.params.trip_id");
-  console.log(route.params.trip_id);
   // trip_id로 place list 가져오기
   const code = route.params.trip_id;
   useEffect(() => {
@@ -43,52 +41,56 @@ export const Tourist = ({ navigation, route }) => {
         trip_id: code,
       })
     );
-    console.log("JSON.parse");
     console.log(p);
     return JSON.parse(p);
   };
   //create Place
-  let placeName = "";
+  const [placeName, setPlaceName] = useState("");
+  const [placeType, setPlaceType] = useState("관광지");
   const newPlaces = async () => {
     await postTool.postWithData(
       "Place/create",
       JSON.stringify({
         trip_id: code,
         name: placeName,
-        type: "TOURIST_SPOT",
+        place_type: placeType,
       })
     );
     const p = await readPlaces();
     setPlaces(p);
   };
 
-  const LIST_VIEW_DATA = Array(8)
-    .fill("")
-    .map((_, i) => ({ key: `${i}`, text: `여행지 #${i}` }));
+  //delete Place
+  const deletePlace = async (placeId) => {
+    const a = await postTool.postWithData(
+      "Place/delete",
+      JSON.stringify({
+        place_id: placeId,
+      })
+    );
+    const p = await readPlaces();
+    setPlaces(p);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <SwipeListView
-        data={LIST_VIEW_DATA}
+        data={places}
         renderItem={({ item }) => (
           <View style={styles.swipeListItem}>
-            <Text>{item.text}</Text>
+            <Text>{item.name}</Text>
           </View>
         )}
         renderHiddenItem={(data, rowMap) => (
           <View style={styles.swipeHiddenItemContainer}>
-            <TouchableOpacity
-              onPress={() => setText(`${data.item.text} left is pressed`)}
-            >
+            <TouchableOpacity onPress={() => deletePlace(data.item.place_id)}>
               <View
-                style={[styles.swipeHiddenItem, { backgroundColor: "green" }]}
+                style={[styles.swipeHiddenItem, { backgroundColor: "red" }]}
               >
-                <Text style={styles.swipeHiddenItemText}>Detail</Text>
+                <Text style={styles.swipeHiddenItemText}>Delete</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setText(`${data.item.text} right is pressed`)}
-            >
+            <TouchableOpacity onPress={() => deletePlace(data.item.place_id)}>
               <View
                 style={[styles.swipeHiddenItem, { backgroundColor: "red" }]}
               >
@@ -118,7 +120,9 @@ export const Tourist = ({ navigation, route }) => {
         </View>
         <View style={{ marginLeft: 30 }}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("TravelGraph", { plans })}
+            onPress={() =>
+              navigation.navigate("TravelGraph", { trip_id: code })
+            }
           >
             <AntDesign name="solution1" size={48} color="black" />
           </TouchableOpacity>
@@ -150,20 +154,37 @@ export const Tourist = ({ navigation, route }) => {
             <Text style={{ fontSize: 25 }}>여행지 : </Text>
             <TextInput
               onChangeText={(text) => {
-                placeName = text;
+                setPlaceName(text);
               }}
               style={{ fontSize: 25, width: 180 }}
             ></TextInput>
-            <RadioGroup label="옵션 선택" value={value} onChange={setValue}>
-              <Radio value="TOURIST_SPOT">관광지</Radio>
-              <Radio value="RESTAURANT">음식점</Radio>
-            </RadioGroup>
           </View>
-          {/* radio button */}
+          <View>
+            <RadioButton.Item
+              label="관광지"
+              value="first"
+              status={checked === "first" ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked("first");
+                setPlaceType("관광지");
+              }}
+            />
+            <RadioButton.Item
+              label="음식점"
+              value="second"
+              status={checked === "second" ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked("second");
+                setPlaceType("음식점");
+              }}
+            />
+          </View>
           <Pressable
             style={[styles.button, styles.buttonClose]}
             onPress={() => {
               setModalVisiblePlace(!modalVisiblePlace);
+              newPlaces();
+              setPlaceName();
             }}
           >
             <Text style={styles.textStyle}>생성</Text>
