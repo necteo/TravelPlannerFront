@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   Animated,
@@ -8,12 +8,14 @@ import {
   TextInput,
   Keyboard,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 import Svg, { Line } from "react-native-svg";
 import styled from "styled-components";
 import { plans } from "../PlanData";
 import { styles } from "../Styles";
 import { Entypo } from "@expo/vector-icons";
+import { PostTools } from "./PostTool";
 
 const { height, width } = Dimensions.get("window");
 const viewHeight = height - 100;
@@ -27,53 +29,78 @@ const getDateDiff = (d1, d2) => {
   return diffDate / (1000 * 60 * 60); // 밀리세컨 * 초 * 분 = 시
 };
 
-let firstTime = [plans[0][0].date, 24];
-plans.map((plan) => {
-  const dd = getDateDiff(firstTime[0], plan[0].date);
-  const len =
-    parseInt(plan[0].startTime.split(":")[0]) +
-    parseInt(plan[0].startTime.split(":")[1]) / 60;
-  if (dd < 0) {
-    firstTime[0] = plan[0].date;
-    firstTime[1] = len;
-  } else {
-    if (firstTime[1] > len + dd) {
-      firstTime[0] = plan[0].date;
-      firstTime[1] = len + dd;
-    }
-  }
-});
-const firstWidth = [];
-plans.map((plan) => {
-  firstWidth.push(
-    60 *
-      (parseInt(plan[0].startTime.split(":")[0]) +
-        parseInt(plan[0].startTime.split(":")[1]) / 60 -
-        firstTime[1] +
-        getDateDiff(plan[0].date, firstTime[0]))
-  );
-});
-
-let maxLen = 0;
-plans.map((plan) => {
-  const dd = getDateDiff(plan[plan.length - 1].date, firstTime[0]);
-  const len =
-    parseInt(plan[plan.length - 1].endTime.split(":")[0]) +
-    parseInt(plan[plan.length - 1].endTime.split(":")[1]) / 60 -
-    firstTime[1] +
-    dd;
-  if (maxLen < len) maxLen = len;
-});
-
-const CONTENTS_HEIGHT = 120 * plans.length;
-const CONTENTS_WIDTH = 61 * maxLen;
-
 const Box = styled.View`
   background-color: white;
 `;
 const AnimatedBox = Animated.createAnimatedComponent(Box);
 
-export const TravelGraph = ({ navigation }) => {
+export const TravelGraph = ({ navigation, route }) => {
+  const [planss, setPlanss] = useState();
+
+  useEffect(() => {
+    const read = async () => {
+      const p = await readPlaces();
+      setPlanss(p);
+    };
+    read();
+  }, []);
+
+  const postTool = new PostTools();
+
+  const readPlaces = async () => {
+    const p = await postTool.postWithData(
+      "PlanDetail/read",
+      JSON.stringify({
+        trip_id: code,
+      })
+    );
+    console.log(p);
+    return JSON.parse(p);
+  };
+
+  const code = route.params.trip_id;
+
+  let firstTime = [plans[0][0].date, 24];
+  plans.map((plan) => {
+    const dd = getDateDiff(firstTime[0], plan[0].date);
+    const len =
+      parseInt(plan[0].startTime.split(":")[0]) +
+      parseInt(plan[0].startTime.split(":")[1]) / 60;
+    if (dd < 0) {
+      firstTime[0] = plan[0].date;
+      firstTime[1] = len;
+    } else {
+      if (firstTime[1] > len + dd) {
+        firstTime[0] = plan[0].date;
+        firstTime[1] = len + dd;
+      }
+    }
+  });
+  const firstWidth = [];
+  plans.map((plan) => {
+    firstWidth.push(
+      60 *
+        (parseInt(plan[0].startTime.split(":")[0]) +
+          parseInt(plan[0].startTime.split(":")[1]) / 60 -
+          firstTime[1] +
+          getDateDiff(plan[0].date, firstTime[0]))
+    );
+  });
+
+  let maxLen = 0;
+  plans.map((plan) => {
+    const dd = getDateDiff(plan[plan.length - 1].date, firstTime[0]);
+    const len =
+      parseInt(plan[plan.length - 1].endTime.split(":")[0]) +
+      parseInt(plan[plan.length - 1].endTime.split(":")[1]) / 60 -
+      firstTime[1] +
+      dd;
+    if (maxLen < len) maxLen = len;
+  });
+
+  const CONTENTS_HEIGHT = 120 * plans.length;
+  const CONTENTS_WIDTH = 61 * maxLen;
+
   var xOffset,
     yOffset = 0;
   const xDiff = width - CONTENTS_WIDTH >= 0 ? 0 : width - CONTENTS_WIDTH;
@@ -211,29 +238,40 @@ export const TravelGraph = ({ navigation }) => {
                   {infos.isDup ? (
                     <View style={{ width: locWidth[yindex][xindex] }}></View>
                   ) : (
-                    <View
-                      style={{
-                        width: locWidth[yindex][xindex],
-                        borderWidth: 1,
-                        borderRadius: 10,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
+                    <Pressable
+                      onPress={() =>
+                        navigation.navigate("Destination", {
+                          trip_id: plan.trip_id,
+                          plan_id: plan.plan_id,
+                          index: xindex,
+                          isNew: route.params.isNew,
+                        })
+                      }
                     >
-                      <Entypo
-                        style={{ paddingLeft: 5 }}
-                        name="image"
-                        size={15}
-                        color="black"
-                      />
-                      <View style={{ marginBottom: 20 }}>
-                        <Text style={{}}>{infos.startTime}</Text>
-                        <TextInput style={styles.text}>
-                          {infos.location}
-                        </TextInput>
+                      <View
+                        style={{
+                          width: locWidth[yindex][xindex],
+                          borderWidth: 1,
+                          borderRadius: 10,
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Entypo
+                          style={{ paddingLeft: 5 }}
+                          name="image"
+                          size={15}
+                          color="black"
+                        />
+                        <View style={{ marginBottom: 20 }}>
+                          <Text style={{}}>{infos.startTime}</Text>
+                          <TextInput style={styles.text}>
+                            {infos.location}
+                          </TextInput>
+                        </View>
                       </View>
-                    </View>
+                    </Pressable>
                   )}
 
                   {xindex === plan.length - 1 ? null : infos.isDup ? (

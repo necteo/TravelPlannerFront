@@ -1,52 +1,196 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
+  SafeAreaView,
+  StyleSheet,
   Text,
-  View,
-  Dimensions,
   TouchableOpacity,
-  ScrollView,
+  View,
+  Modal,
   TextInput,
+  Pressable,
+  Alert,
 } from "react-native";
+import { RadioButton } from "react-native-paper";
+import { SwipeListView } from "react-native-swipe-list-view";
 import { AntDesign } from "@expo/vector-icons";
 import { styles } from "../Styles";
+import { PostTools } from "./PostTool";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-// console.log(SCREEN_WIDTH);
+const postTool = new PostTools();
+//read Place
 
-export const Tourist = ({ navigation }) => {
-  const tourist1 = "첨성대";
-  const tourist2 = "불국사";
-  const tourist3 = "석굴암";
-  const tourist4 = "금오공대";
-  const tourist5 = "연세대";
-  const tourist6 = "고려대";
-  const tourist7 = "서울대";
-  const tourist8 = "경북대";
-  const touristArray = new Array(
-    tourist1,
-    tourist2,
-    tourist3,
-    tourist4,
-    tourist5,
-    tourist6,
-    tourist7,
-    tourist8
-  );
+export const Tourist = ({ navigation, route }) => {
+  const [places, setPlaces] = useState();
+  const [modalVisiblePlace, setModalVisiblePlace] = useState(false);
+  const [checked, setChecked] = React.useState("first");
+
+  // trip_id로 place list 가져오기
+  const code = route.params.trip_id;
+  useEffect(() => {
+    const read = async () => {
+      const p = await readPlaces();
+      setPlaces(p);
+    };
+    read();
+  }, []);
+
+  const readPlaces = async () => {
+    const p = await postTool.postWithData(
+      "Place/read",
+      JSON.stringify({
+        trip_id: code,
+      })
+    );
+    console.log(p);
+    return JSON.parse(p);
+  };
+  //create Place
+  const [placeName, setPlaceName] = useState("");
+  const [placeType, setPlaceType] = useState("관광지");
+  const newPlaces = async () => {
+    await postTool.postWithData(
+      "Place/create",
+      JSON.stringify({
+        trip_id: code,
+        name: placeName,
+        place_type: placeType,
+      })
+    );
+    const p = await readPlaces();
+    setPlaces(p);
+  };
+
+  //delete Place
+  const deletePlace = async (placeId) => {
+    const a = await postTool.postWithData(
+      "Place/delete",
+      JSON.stringify({
+        place_id: placeId,
+      })
+    );
+    const p = await readPlaces();
+    setPlaces(p);
+  };
 
   return (
-    <View style={styles.travelDestinationListBox}>
-      <ScrollView style={styles.touristScrollView}>
-        {touristArray.map((tourist, id) => (
-          <View key={id} style={styles.travelDestinationBox}>
-            <Text style={{ fontSize: 20 }}>{tourist}</Text>
+    <SafeAreaView style={styles.container}>
+      <SwipeListView
+        data={places}
+        renderItem={({ item }) => (
+          <View style={styles.swipeListItem}>
+            <Text>{item.name}</Text>
           </View>
-        ))}
-      </ScrollView>
-      <View style={{ marginBottom: 30 }}>
-        <TouchableOpacity onPress={() => navigation.navigate("Destination")}>
-          <AntDesign name="pluscircleo" size={48} color="black" />
-        </TouchableOpacity>
+        )}
+        renderHiddenItem={(data, rowMap) => (
+          <View style={styles.swipeHiddenItemContainer}>
+            <TouchableOpacity onPress={() => deletePlace(data.item.place_id)}>
+              <View
+                style={[styles.swipeHiddenItem, { backgroundColor: "red" }]}
+              >
+                <Text style={styles.swipeHiddenItemText}>Delete</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => deletePlace(data.item.place_id)}>
+              <View
+                style={[styles.swipeHiddenItem, { backgroundColor: "red" }]}
+              >
+                <Text style={styles.swipeHiddenItemText}>Delete</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+        leftOpenValue={70}
+        rightOpenValue={-70}
+      />
+
+      <View
+        style={{
+          width: 300,
+          height: 100,
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          marginLeft: 60,
+        }}
+      >
+        <View style={{ marginRight: 30 }}>
+          <TouchableOpacity onPress={() => setModalVisiblePlace(true)}>
+            <AntDesign name="pluscircleo" size={48} color="black" />
+          </TouchableOpacity>
+        </View>
+        <View style={{ marginLeft: 30 }}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("TravelGraph", { trip_id: code })
+            }
+          >
+            <AntDesign name="solution1" size={48} color="black" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisiblePlace}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisiblePlace(!modalVisiblePlace);
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "#bbb",
+            marginTop: 300,
+            width: 300,
+            borderRadius: 20,
+            padding: 10,
+            marginLeft: 40,
+          }}
+        >
+          <View
+            style={{ flexDirection: "row", marginTop: 10, marginBottom: 20 }}
+          >
+            <Text style={{ fontSize: 25 }}>여행지 : </Text>
+            <TextInput
+              onChangeText={(text) => {
+                setPlaceName(text);
+              }}
+              style={{ fontSize: 25, width: 180 }}
+            ></TextInput>
+          </View>
+          <View>
+            <RadioButton.Item
+              label="관광지"
+              value="first"
+              status={checked === "first" ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked("first");
+                setPlaceType("관광지");
+              }}
+            />
+            <RadioButton.Item
+              label="음식점"
+              value="second"
+              status={checked === "second" ? "checked" : "unchecked"}
+              onPress={() => {
+                setChecked("second");
+                setPlaceType("음식점");
+              }}
+            />
+          </View>
+          <Pressable
+            style={[styles.button, styles.buttonClose]}
+            onPress={() => {
+              setModalVisiblePlace(!modalVisiblePlace);
+              newPlaces();
+              setPlaceName();
+            }}
+          >
+            <Text style={styles.textStyle}>생성</Text>
+          </Pressable>
+        </View>
+      </Modal>
+    </SafeAreaView>
   );
 };

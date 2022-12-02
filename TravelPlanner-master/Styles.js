@@ -49,7 +49,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "#F194FF",
   },
   buttonClose: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "gray",
+    marginTop: 10,
   },
   textStyle: {
     color: "white",
@@ -116,5 +117,36 @@ export const styles = StyleSheet.create({
   touristScrollView: {
     marginTop: 10,
     marginBottom: 30,
+  },
+  styledText: {
+    color: "#111",
+    fontWeight: "bold",
+    fontSize: 24,
+  },
+  swipeListItem: {
+    alignItems: "center",
+    borderBottomColor: "#fff",
+    borderBottomWidth: 1,
+    justifyContent: "center",
+    height: 80,
+    backgroundColor: "#eee",
+  },
+  swipeHiddenItemContainer: {
+    flex: 1,
+    height: "100%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "white",
+    flexDirection: "row",
+  },
+  swipeHiddenItem: {
+    width: 70,
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  swipeHiddenItemText: {
+    color: "white",
+    fontSize: 14,
   },
 });

@@ -1,7 +1,7 @@
 //http://192.168.0.4:3000/
 export class PostTools {
   constructor() {
-    this.serverIp = ip;
+    this.serverIp = "http://180.71.161.34:3000/";
   }
   async post(url) {
     const data = await fetch(this.serverIp + url, {
