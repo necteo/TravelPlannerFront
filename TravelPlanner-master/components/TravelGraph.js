@@ -16,6 +16,8 @@ import { plans } from "../PlanData";
 import { styles } from "../Styles";
 import { Entypo } from "@expo/vector-icons";
 import { PostTools } from "./PostTool";
+import { useSelector, useDispatch } from "react-redux";
+import { touchedNew, createNew } from "../checkNew";
 
 const { height, width } = Dimensions.get("window");
 const viewHeight = height - 100;
@@ -44,6 +46,15 @@ export const TravelGraph = ({ navigation, route }) => {
     };
     read();
   }, []);
+
+  const dispatch = useDispatch();
+  const { checkNew } = useSelector((state) => state.checkNew);
+  const setNew = () => {
+    dispatch(touchedNew(true));
+  };
+  const createPlan = () => {
+    dispatch(createNew(false));
+  };
 
   const postTool = new PostTools();
 

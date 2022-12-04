@@ -18,7 +18,6 @@ import { styles } from "../Styles";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
-import { TabNavigator } from "./TabNavigator";
 import { Tourist } from "./Tourist";
 import { Vote } from "./Vote";
 import { PostTools } from "./PostTool";
@@ -30,6 +29,9 @@ import { SaveMembers } from "./SaveMembers";
 import { GetMembers } from "./GetMembers";
 import { deletePlan } from "./deletePlan";
 import { deleteMember } from "./deleteMember";
+import { useSelector, useDispatch } from "react-redux";
+import { touchedNew, createNew } from "../checkNew";
+
 const { height, width } = Dimensions.get("window");
 const viewHeight = height;
 
@@ -42,7 +44,6 @@ export const Body = () => {
   const [members, setMembers] = useState({});
   const [modalVisibleNew, setModalVisibleNew] = useState(false);
   const [modalVisibleCode, setModalVisibleCode] = useState(false);
-  const [isNew, setIsNew] = useState(false);
   const [checked, setChecked] = useState("first");
   const [codeType, setCodeType] = useState("참가");
 
@@ -66,6 +67,14 @@ export const Body = () => {
   useEffect(() => {
     SaveMembers(members);
   }, [members]);
+
+  const dispatch = useDispatch();
+  const setNew = () => {
+    dispatch(touchedNew(true));
+  };
+  const createPlan = () => {
+    dispatch(createNew(false));
+  };
 
   //create trip
   var title = null;
@@ -181,7 +190,7 @@ export const Body = () => {
     </View>
   );
   const headerRightGraph = () => (
-    <TouchableOpacity onPress={() => setIsNew(true)}>
+    <TouchableOpacity onPress={() => setNew()}>
       <Text
         style={{
           borderRadius: 20,
