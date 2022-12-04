@@ -241,10 +241,9 @@ export const TravelGraph = ({ navigation, route }) => {
                     <Pressable
                       onPress={() =>
                         navigation.navigate("Destination", {
-                          trip_id: plan.trip_id,
+                          trip_id: route.params.trip_id,
                           plan_id: plan.plan_id,
                           index: xindex,
-                          isNew: route.params.isNew,
                         })
                       }
                     >

@@ -28,6 +28,8 @@ import { containsKey } from "./containsKey";
 import { RadioButton } from "react-native-paper";
 import { SaveMembers } from "./SaveMembers";
 import { GetMembers } from "./GetMembers";
+import { deletePlan } from "./deletePlan";
+import { deleteMember } from "./deleteMember";
 const { height, width } = Dimensions.get("window");
 const viewHeight = height;
 
@@ -43,6 +45,19 @@ export const Body = () => {
   const [isNew, setIsNew] = useState(false);
   const [checked, setChecked] = useState("first");
   const [codeType, setCodeType] = useState("참가");
+
+  useEffect(() => {
+    const getp = async () => {
+      const myPlans = await GetPlans();
+      setPlans(myPlans);
+    };
+    const getm = async () => {
+      const myMems = await GetMembers();
+      setMembers(myMems);
+    };
+    getp();
+    getm();
+  }, []);
 
   useEffect(() => {
     SavePlans(plans);
@@ -66,22 +81,18 @@ export const Body = () => {
       })
     );
     const p = JSON.parse(strp);
-
+    const m = {
+      [p[Object.keys(p)[0]].trip_id]: {
+        trip_id: p[Object.keys(p)[0]].trip_id,
+        member_id: id,
+      },
+    };
     const plan = await GetPlans();
-    // const member = await GetMembers();
+    const member = await GetMembers();
 
-    // const strm = {
-    //   trip_id: p.trip_id,
-    //   member_id: id,
-    // };
+    setPlans({ ...plan, ...p });
+    setMembers({ ...member, ...m });
 
-    if (plan === null) {
-      setPlans(p);
-      // setMembers(strm);
-    } else {
-      setPlans({ ...plan, ...p });
-      // setMembers(...member, ...strm);
-    }
     title = null;
     id = null;
   };
@@ -98,8 +109,7 @@ export const Body = () => {
       })
     );
     const p = JSON.parse(strp);
-    console.log(p[0]);
-    console.log(p.length);
+
     if (p.length != 0) {
       const plan = await GetPlans();
       console.log(plan);
@@ -130,7 +140,7 @@ export const Body = () => {
 
   const headerLeft = () => (
     <Image
-      source={require("../icon/none_image.png")}
+      source={require("../icon/brandIcon.png")}
       style={{ width: 45, height: 35 }}
     ></Image>
   );
@@ -205,8 +215,6 @@ export const Body = () => {
                 viewHeight={viewHeight}
                 plans={plans}
                 navigation={navigation}
-                isNew={isNew}
-                setIsNew={setIsNew}
               />
             )}
             options={() => ({

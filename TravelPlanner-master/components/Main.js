@@ -6,47 +6,81 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  Pressable,
   TextInput,
+  Pressable,
   Alert,
 } from "react-native";
-
 import { PostTools } from "./PostTool";
 import { styles } from "../Styles";
+import { GetMembers } from "./GetMembers";
+import { deleteMember } from "./deleteMember";
+import { deletePlan } from "./deletePlan";
 
 const postTool = new PostTools();
 
-const Member = ({ member }) => {
+const Member = ({ member, members, setMembers, isHost }) => {
   return (
     <View style={{ flexDirection: "row", marginTop: 20 }}>
-      <Image
-        source={require("../icon/person.png")}
-        style={{ width: 40, height: 40 }}
-      ></Image>
+      {member.host ? (
+        <Image
+          source={require("../icon/crown.png")}
+          style={{ width: 40, height: 40 }}
+        ></Image>
+      ) : (
+        <Image
+          source={require("../icon/person.png")}
+          style={{ width: 40, height: 40 }}
+        ></Image>
+      )}
       <Text style={{ marginTop: 10, marginLeft: 10, fontSize: 20, width: 160 }}>
         {member.member_id}
       </Text>
-      <Image
-        source={require("../icon/minus.png")}
-        style={{ width: 30, height: 30 }}
-      ></Image>
+      {isHost ? (
+        member.host ? null : (
+          <TouchableOpacity
+            onPress={() => {
+              deleteMember(member);
+              setMembers(members);
+            }}
+          >
+            <Image
+              source={require("../icon/minus.png")}
+              style={{ width: 30, height: 30 }}
+            ></Image>
+          </TouchableOpacity>
+        )
+      ) : null}
     </View>
   );
 };
 
 const Members = ({ trip_id }) => {
   const [members, setMembers] = useState([]);
+  const [isHost, setIsHost] = useState(false);
+
   useEffect(() => {
     const rm = async () => {
       const m = await memberRead();
-      console.log("m");
-      console.log(m);
       setMembers(m);
     };
     rm();
-    console.log("members");
-    console.log(members);
   }, []);
+
+  useEffect(() => {
+    const getMyMembers = async () => {
+      const myMembers = await GetMembers();
+      Object.keys(myMembers).map((key, _) =>
+        myMembers[key].trip_id === trip_id
+          ? members.map((m, _) =>
+              m.member_id === myMembers[key].member_id
+                ? setIsHost(m.host)
+                : null
+            )
+          : null
+      );
+    };
+    getMyMembers();
+  }, [members]);
 
   const memberRead = async () => {
     const p = await postTool.postWithData(
@@ -69,13 +103,19 @@ const Members = ({ trip_id }) => {
       }}
     >
       {members.map((member, idx) => (
-        <Member key={idx} member={member}></Member>
+        <Member
+          key={idx}
+          member={member}
+          members={members}
+          setMembers={setMembers}
+          isHost={isHost}
+        ></Member>
       ))}
     </View>
   );
 };
 
-const Plan = ({ plan, navigation, isNew, setIsNew }) => {
+const Plan = ({ plan, setPlns, navigation }) => {
   const [memberVisibility, setMemberVisibility] = useState(false);
   const [dotsVisibility, setDotsVisibility] = useState(false);
 
@@ -136,10 +176,6 @@ const Plan = ({ plan, navigation, isNew, setIsNew }) => {
             onPress={() =>
               navigation.navigate("TravelGraph", {
                 trip_id: plan.trip_id,
-                isNew: isNew,
-                setIsNew: function (b) {
-                  setIsNew(b);
-                },
               })
             }
           >
@@ -204,6 +240,7 @@ const Plan = ({ plan, navigation, isNew, setIsNew }) => {
             style={[styles.button, styles.buttonClose]}
             onPress={() => {
               setDotsVisibility(!dotsVisibility);
+              setPlns(deletePlan(plan));
             }}
           >
             <Text style={styles.textStyle}>삭제</Text>
@@ -222,8 +259,9 @@ const Plan = ({ plan, navigation, isNew, setIsNew }) => {
   );
 };
 
-export const Plans = ({ viewHeight, plans, navigation, isNew, setIsNew }) => {
-  //데이터 받아와야함
+export const Plans = ({ viewHeight, plans, navigation }) => {
+  const [plns, setPlns] = useState(plans);
+
   return (
     <View style={{ alignItems: "center" }}>
       {Object.keys(plans).length === 0 ? (
@@ -244,14 +282,13 @@ export const Plans = ({ viewHeight, plans, navigation, isNew, setIsNew }) => {
           ></Image>
         </View>
       ) : (
-        <ScrollView style={{ height: viewHeight }}>
+        <ScrollView style={{ height: viewHeight - 120 }}>
           {Object.keys(plans).map((key) => (
             <Plan
               key={key}
               plan={plans[key]}
+              setPlns={setPlns}
               navigation={navigation}
-              isNew={isNew}
-              setIsNew={setIsNew}
             ></Plan>
           ))}
         </ScrollView>
