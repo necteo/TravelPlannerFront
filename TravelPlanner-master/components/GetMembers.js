@@ -7,7 +7,6 @@ export const GetMembers = async () => {
     const members = await AsyncStorage.getItem(KEY);
     if (members !== null) {
       const memberDatas = JSON.parse(members);
-      console.log("getdata");
       return memberDatas;
     }
     return null;

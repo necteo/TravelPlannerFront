@@ -23,9 +23,13 @@ export const Tourist = ({ navigation, route }) => {
   const [places, setPlaces] = useState();
   const [modalVisiblePlace, setModalVisiblePlace] = useState(false);
   const [checked, setChecked] = React.useState("first");
+  //create Place
+  const [placeName, setPlaceName] = useState("");
+  const [placeType, setPlaceType] = useState("관광지");
+  const [changed, setChanged] = useState(true);
 
+  // changePromise();
   // trip_id로 place list 가져오기
-  const code = route.params.trip_id;
   useEffect(() => {
     const read = async () => {
       const p = await readPlaces();
@@ -34,30 +38,31 @@ export const Tourist = ({ navigation, route }) => {
     read();
   }, []);
 
+  useEffect(() => {
+    console.log("useEffect : " + changed);
+    changePromise(route.params.trip_id);
+  }, [places]);
+
   const readPlaces = async () => {
     const p = await postTool.postWithData(
       "Place/read",
       JSON.stringify({
-        trip_id: code,
+        trip_id: route.params.trip_id,
       })
     );
-    console.log(p);
+
     return JSON.parse(p);
   };
-  //create Place
-  const [placeName, setPlaceName] = useState("");
-  const [placeType, setPlaceType] = useState("관광지");
+
   const newPlaces = async () => {
     await postTool.postWithData(
       "Place/create",
       JSON.stringify({
-        trip_id: code,
+        trip_id: route.params.trip_id,
         name: placeName,
         place_type: placeType,
       })
     );
-    const p = await readPlaces();
-    setPlaces(p);
   };
 
   //delete Place
@@ -65,11 +70,32 @@ export const Tourist = ({ navigation, route }) => {
     const a = await postTool.postWithData(
       "Place/delete",
       JSON.stringify({
+        trip_id: route.params.trip_id,
         place_id: placeId,
       })
     );
-    const p = await readPlaces();
-    setPlaces(p);
+  };
+  //change listener
+  const changePlace = async (trip_id) => {
+    const a = await postTool.postWithDataForOt(
+      "Place/change",
+      JSON.stringify({
+        trip_id: trip_id,
+      })
+    );
+    console.log(JSON.parse(a));
+    console.log("123");
+
+    return JSON.parse(a);
+  };
+
+  const changePromise = async (trip_id) => {
+    if (changed) {
+      setChanged(false);
+      const p = await changePlace(trip_id);
+      setChanged(true);
+      setPlaces(p);
+    }
   };
 
   return (
@@ -121,7 +147,9 @@ export const Tourist = ({ navigation, route }) => {
         <View style={{ marginLeft: 30 }}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate("TravelGraph", { trip_id: code })
+              navigation.navigate("TravelGraph", {
+                trip_id: route.params.trip_id,
+              })
             }
           >
             <AntDesign name="solution1" size={48} color="black" />
