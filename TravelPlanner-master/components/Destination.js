@@ -1,114 +1,183 @@
 import React, { useState, useEffect } from "react";
-import { View, Image, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { PostTools } from "./PostTool";
 
-export const Destination = ({ navigation, trip_id, plan_id, index, isNew }) => {
+export const Destination = ({ navigation, route }) => {
   const postTool = new PostTools();
   const [detail, setDetail] = useState("");
 
   useEffect(() => {
-    if (isNew) {
+    if (true) {
       // 새로운 PlanDetail 생성
     } else {
       // 넘겨온 데이터 표시
     }
   }, []);
+  //change listener
+  const changePlace = async (trip_id) => {
+    const a = await postTool.postWithDataForOt(
+      "Place/change",
+      JSON.stringify({
+        trip_id: trip_id,
+      })
+    );
+    console.log(JSON.parse(a));
+
+    return JSON.parse(a);
+  };
+
+  const changePromiseDetail = async (trip_id) => {
+    if (changed) {
+      setChanged(false);
+      const p = await changePlace(trip_id);
+      setChanged(true);
+      setPlaces(p);
+    }
+  };
 
   return (
-    <View
-      style={{
-        backgroundColor: "#cfd4da",
-        borderRadius: 20,
-        height: 550,
-        marginTop: 50,
-        marginLeft: 30,
-        marginRight: 30,
-        alignItems: "center",
-      }}
+    <KeyboardAvoidingView
+      style={{ backgroundColor: "tomato" }}
+      keyboardVerticalOffset={200}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={{ flexDirection: "row" }}>
-        <Image
-          source={require("../icon/none_image.png")}
-          style={{ height: 100, width: 100, marginLeft: 30, marginTop: 50 }}
-        ></Image>
-
-        <TextInput
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View
           style={{
-            fontSize: 20,
-            marginLeft: 10,
-            marginTop: 60,
-            width: 150,
-            height: 20,
-            borderBottomWidth: 1,
+            backgroundColor: "#cfd4da",
+            borderRadius: 20,
+            height: 550,
+            marginTop: 70,
+            marginLeft: 30,
+            marginRight: 30,
+            alignItems: "center",
           }}
-          onChangeText={(text) => {}}
         >
-          제목을 입력하세요
-        </TextInput>
-      </View>
-      <View>
-        <View>
-          <Text>날짜 </Text>
+          <View style={{ flexDirection: "row" }}>
+            <Image
+              source={require("../icon/none_image.png")}
+              style={{ height: 120, width: 120, marginLeft: 10, marginTop: 40 }}
+            ></Image>
+
+            <TextInput
+              style={{
+                fontSize: 20,
+                marginLeft: 10,
+                marginRight: 10,
+                marginTop: 80,
+                width: 150,
+                height: 40,
+                borderBottomWidth: 1,
+              }}
+              onChangeText={(text) => {}}
+            >
+              여행지 입력
+            </TextInput>
+            <TouchableOpacity
+              style={{ marginTop: 90, marginRight: 5 }}
+              onPress={() =>
+                navigation.navigate("Tourist", {
+                  trip_id: route.params.trip_id,
+                })
+              }
+            >
+              <AntDesign name="download" size={34} color="black" />
+            </TouchableOpacity>
+          </View>
           <View>
-            <TextInput></TextInput>
-            <Text>~</Text>
-            <TextInput></TextInput>
+            <View style={{ marginTop: 30, alignItems: "center", fontSize: 15 }}>
+              <Text>날짜 </Text>
+              <View style={{ flexDirection: "row", marginTop: 10 }}>
+                <View
+                  style={{
+                    borderRadius: 20,
+                    width: 100,
+                    height: 22,
+                    backgroundColor: "#bbb",
+                    alignItems: "center",
+                  }}
+                >
+                  <TextInput
+                    style={{
+                      width: 80,
+                      height: 22,
+                    }}
+                  >
+                    20230126
+                  </TextInput>
+                </View>
+
+                <Text style={{ marginLeft: 10, marginRight: 10 }}>~</Text>
+                <View
+                  style={{
+                    borderRadius: 20,
+                    width: 100,
+                    height: 22,
+                    backgroundColor: "#bbb",
+                    alignItems: "center",
+                  }}
+                >
+                  <TextInput
+                    style={{
+                      width: 80,
+                      height: 22,
+                    }}
+                  >
+                    20230126
+                  </TextInput>
+                </View>
+              </View>
+            </View>
+            <View>
+              <View
+                style={{
+                  alignItems: "center",
+                  marginTop: 20,
+                  marginBottom: 10,
+                  fontSize: 15,
+                }}
+              >
+                <Text>세부 계획 </Text>
+              </View>
+              <View
+                style={{
+                  borderRadius: 20,
+                  width: 300,
+                  height: 220,
+                  backgroundColor: "#bbb",
+                }}
+              >
+                <View>
+                  <TextInput
+                    style={{
+                      borderRadius: 20,
+                      width: 280,
+                      height: 200,
+                      backgroundColor: "#bbb",
+                      marginLeft: 10,
+                    }}
+                    multiline={true}
+                    onChangeText={(text) => {
+                      setDetail(text);
+                    }}
+                  ></TextInput>
+                </View>
+              </View>
+            </View>
           </View>
         </View>
-        {/* 세부계획 */}
-        <View>
-          <Text>세부 계획 </Text>
-          <TextInput
-            onChangeText={(text) => {
-              console.log(text);
-              console.log("text : " + text.length);
-              // console.log(detail);
-              console.log("detail : " + detail.length);
-              var textLen = text.length;
-              var detailLen = detail.length;
-              var i = 0;
-              if (textLen > detailLen) {
-                for (i = 0; i < textLen; i++) {
-                  console.log("text[i] : " + text[i]);
-                  console.log("detail[i] : " + detail[i]);
-                  if (text[i] != detail[i]) {
-                    console.log("글자 추가");
-                    break;
-                  } else {
-                    console.log("왜?");
-                  }
-                }
-              } else if (textLen == detailLen) {
-                console.log("text[i] : " + text[i]);
-                console.log("detail[i] : " + detail[i]);
-                for (i = 0; i < detailLen; i++) {
-                  if (text[i] != detail[i]) {
-                    console.log("성추가");
-                    break;
-                  }
-                }
-              } else {
-                for (i = 0; i < detailLen; i++) {
-                  console.log("text[i] : " + text[i]);
-                  console.log("detail[i] : " + detail[i]);
-                  if (text[i] != detail[i]) {
-                    console.log("글자 삭제");
-                    break;
-                  }
-                }
-              }
-              setDetail(text);
-            }}
-          ></TextInput>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={{ marginTop: 340 }}
-        onPress={() => navigation.navigate("TravelGraph")}
-      >
-        <AntDesign name="pluscircleo" size={48} color="black" />
-      </TouchableOpacity>
-    </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
