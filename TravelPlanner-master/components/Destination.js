@@ -13,13 +13,13 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { PostTools } from "./PostTool";
-
+var postTool = new PostTools();
 export const Destination = ({ navigation, route }) => {
-  var postTool = new PostTools();
   const [details, setDetails] = useState();
   const [changed, setChanged] = useState(true);
 
   useEffect(() => {
+    navigation.setOptions({ headerLeft });
     const read = async () => {
       const p = await readPlanDetailOne();
 
@@ -32,6 +32,15 @@ export const Destination = ({ navigation, route }) => {
     console.log("useEffect Destination : " + changed);
     changePromise();
   }, [details]);
+
+  const headerLeft = () => (
+    <TouchableOpacity onPress={() => navigation.popToTop()}>
+      <Image
+        source={require("../icon/brandIcon.png")}
+        style={{ width: 45, height: 35 }}
+      ></Image>
+    </TouchableOpacity>
+  );
 
   const readPlanDetailOne = async () => {
     const p = await postTool.postWithData(

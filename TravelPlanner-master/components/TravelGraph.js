@@ -4,6 +4,7 @@ import {
   Animated,
   PanResponder,
   View,
+  Image,
   Dimensions,
   TextInput,
   Keyboard,
@@ -29,11 +30,6 @@ const getDateDiff = (d1, d2) => {
   return diffDate / (1000 * 60 * 60); // 밀리세컨 * 초 * 분 = 시
 };
 
-const Box = styled.View`
-  background-color: white;
-`;
-const AnimatedBox = Animated.createAnimatedComponent(Box);
-
 export const TravelGraph = ({ navigation, route }) => {
   const [planDetail, setPlanDetail] = useState();
   const [checkNew, setCheckNew] = useState("waiting");
@@ -41,7 +37,7 @@ export const TravelGraph = ({ navigation, route }) => {
   const [isDel, setIsDel] = useState(false);
 
   useEffect(() => {
-    navigation.setOptions({ headerRight: headerRightGraph });
+    navigation.setOptions({ headerLeft, headerRight: headerRightGraph });
     console.log("mounted");
     const read = async () => {
       const p = await readPlanDetail();
@@ -82,7 +78,14 @@ export const TravelGraph = ({ navigation, route }) => {
     console.log("useEffect Graph : " + changed);
     changePromise(route.params.trip_id);
   }, [planDetail]);
-
+  const headerLeft = () => (
+    <TouchableOpacity onPress={() => navigation.popToTop()}>
+      <Image
+        source={require("../icon/brandIcon.png")}
+        style={{ width: 45, height: 35 }}
+      ></Image>
+    </TouchableOpacity>
+  );
   const headerRightGraph = () => (
     <Pressable
       onPress={() => setCheckNew("once")}
@@ -164,6 +167,11 @@ export const TravelGraph = ({ navigation, route }) => {
     }
   };
 
+  const Box = styled.View`
+    background-color: white;
+  `;
+  const AnimatedBox = Animated.createAnimatedComponent(Box);
+
   let firstTime =
     planDetail === undefined
       ? ["", 24]
@@ -226,20 +234,18 @@ export const TravelGraph = ({ navigation, route }) => {
     if (maxLen < len) maxLen = len;
   });
 
-  const CONTENTS_HEIGHT =
+  var CONTENTS_HEIGHT =
     120 *
     (planDetail === undefined
       ? 0
       : Object.keys(planDetail).length === 0
       ? 0
       : planDetail.length);
-  const CONTENTS_WIDTH = 61 * maxLen;
+  var CONTENTS_WIDTH = 61 * maxLen;
 
   var xOffset,
     yOffset = 0;
-  const xDiff = width - CONTENTS_WIDTH >= 0 ? 0 : width - CONTENTS_WIDTH;
-  const yDiff =
-    viewHeight - CONTENTS_HEIGHT >= 0 ? 0 : viewHeight - CONTENTS_HEIGHT;
+
   const POSITION = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
 
   const locWidth = [];
@@ -312,6 +318,7 @@ export const TravelGraph = ({ navigation, route }) => {
       // setOffset은 터치가 시작될 때 값이 reset 되지 않고 저번 터치가 시작됐을 때
       // 위치에서 다시 시작되기 위해 사용함
       onPanResponderGrant: () => {
+        console.log("touched");
         POSITION.setOffset({
           x: POSITION.x._value,
           y: POSITION.y._value,
@@ -322,6 +329,10 @@ export const TravelGraph = ({ navigation, route }) => {
       },
 
       onPanResponderMove: (_, { dx, dy }) => {
+        const xDiff = -100;
+        const yDiff =
+          viewHeight - CONTENTS_HEIGHT >= 0 ? 0 : viewHeight - CONTENTS_HEIGHT;
+        console.log("moving");
         if (xOffset + dx >= 0) {
           setPosVal(0, POSITION.y._value);
         } else if (xOffset + dx <= xDiff) {
@@ -342,6 +353,7 @@ export const TravelGraph = ({ navigation, route }) => {
       // touch가 완료 된 후에 offset 값이 계속 적산된 것을 막기 위해서
       // offset을 reset 시키기 위함 POSITION.flattenOffset();
       onPanResponderRelease: () => {
+        console.log("end");
         POSITION.flattenOffset();
       },
     })

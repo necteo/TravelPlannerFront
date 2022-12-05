@@ -5,7 +5,13 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "ios": {
+      "bundleIdentifier": "com.pangmo.TravelPlanner"
+    },
+    "android": {
+      "package": "com.pangmo.TravelPlanner"
+    }
   },
   "name": "TravelPlanner"
 }

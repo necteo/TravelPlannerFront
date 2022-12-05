@@ -9,6 +9,7 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Image,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
@@ -31,6 +32,7 @@ export const Tourist = ({ navigation, route }) => {
   // changePromise();
   // trip_id로 place list 가져오기
   useEffect(() => {
+    navigation.setOptions({ headerLeft });
     const read = async () => {
       const p = await readPlaces();
       console.log(p);
@@ -43,6 +45,15 @@ export const Tourist = ({ navigation, route }) => {
     console.log("useEffect : " + changed);
     changePromise(route.params.trip_id);
   }, [places]);
+
+  const headerLeft = () => (
+    <TouchableOpacity onPress={() => navigation.popToTop()}>
+      <Image
+        source={require("../icon/brandIcon.png")}
+        style={{ width: 45, height: 35 }}
+      ></Image>
+    </TouchableOpacity>
+  );
 
   const readPlaces = async () => {
     const p = await postTool.postWithData(
