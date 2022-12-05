@@ -29,8 +29,6 @@ import { SaveMembers } from "./SaveMembers";
 import { GetMembers } from "./GetMembers";
 import { deletePlan } from "./deletePlan";
 import { deleteMember } from "./deleteMember";
-import { useSelector, useDispatch } from "react-redux";
-import { touchedNew, createNew } from "../checkNew";
 
 const { height, width } = Dimensions.get("window");
 const viewHeight = height;
@@ -67,14 +65,6 @@ export const Body = () => {
   useEffect(() => {
     SaveMembers(members);
   }, [members]);
-
-  const dispatch = useDispatch();
-  const setNew = () => {
-    dispatch(touchedNew(true));
-  };
-  const createPlan = () => {
-    dispatch(createNew(false));
-  };
 
   //create trip
   var title = null;
@@ -189,24 +179,6 @@ export const Body = () => {
       </TouchableOpacity>
     </View>
   );
-  const headerRightGraph = () => (
-    <TouchableOpacity onPress={() => setNew()}>
-      <Text
-        style={{
-          borderRadius: 20,
-          borderWidth: 3,
-          fontSize: 16,
-          width: 55,
-          height: 40,
-          textAlign: "center",
-          marginLeft: 10,
-          paddingTop: 8,
-        }}
-      >
-        NEW
-      </Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View
@@ -258,7 +230,6 @@ export const Body = () => {
               title: "",
               headerStyle: styles.header,
               headerLeft,
-              headerRight: headerRightGraph,
             })}
           />
           <Stack.Screen

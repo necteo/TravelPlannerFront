@@ -9,56 +9,138 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { PostTools } from "./PostTool";
 
 export const Destination = ({ navigation, route }) => {
-  const postTool = new PostTools();
-  const [detail, setDetail] = useState("");
+  var postTool = new PostTools();
+  const [details, setDetails] = useState();
+  const [changed, setChanged] = useState(true);
 
   useEffect(() => {
-    if (true) {
-      // 새로운 PlanDetail 생성
-    } else {
-      // 넘겨온 데이터 표시
-    }
+    const read = async () => {
+      const p = await readPlanDetailOne();
+
+      setDetails(p);
+    };
+    read();
   }, []);
-  //change listener
-  const changePlace = async (trip_id) => {
-    const a = await postTool.postWithDataForOt(
-      "Place/change",
+
+  useEffect(() => {
+    console.log("useEffect Destination : " + changed);
+    changePromise();
+  }, [details]);
+
+  const readPlanDetailOne = async () => {
+    const p = await postTool.postWithData(
+      "destination/read",
       JSON.stringify({
-        trip_id: trip_id,
+        trip_id: route.params.trip_id,
+        plan_id: route.params.plan_id,
+        index: route.params.index,
       })
     );
-    console.log(JSON.parse(a));
-
-    return JSON.parse(a);
+    return JSON.parse(p);
   };
 
-  const changePromiseDetail = async (trip_id) => {
+  const updatePlanDetailOneDate = async (date) => {
+    postTool = new PostTools();
+    console.log("updateDate");
+    const p = await postTool.postWithData(
+      "destination/update/date",
+      JSON.stringify({
+        trip_id: route.params.trip_id,
+        plan_id: route.params.plan_id,
+        index: route.params.index,
+        date: date,
+      })
+    );
+  };
+  const updatePlanDetailOneStartTime = async (startTime) => {
+    const p = await postTool.postWithData(
+      "destination/update/startTime",
+      JSON.stringify({
+        trip_id: route.params.trip_id,
+        plan_id: route.params.plan_id,
+        index: route.params.index,
+        startTime: startTime,
+      })
+    );
+  };
+
+  const updatePlanDetailOneEndTime = async (endTime) => {
+    const p = await postTool.postWithData(
+      "destination/update/endTime",
+      JSON.stringify({
+        trip_id: route.params.trip_id,
+        plan_id: route.params.plan_id,
+        index: route.params.index,
+        endTime: endTime,
+      })
+    );
+  };
+
+  const updatePlanDetailOnedetails = async (detail) => {
+    const p = await postTool.postWithData(
+      "destination/update/details",
+      JSON.stringify({
+        trip_id: route.params.trip_id,
+        plan_id: route.params.plan_id,
+        index: route.params.index,
+        details: detail,
+      })
+    );
+  };
+
+  //change listener
+  const changePlanDetailOne = async () => {
+    const p = await postTool.postWithData(
+      "destination/change",
+      JSON.stringify({
+        trip_id: route.params.trip_id,
+        plan_id: route.params.plan_id,
+        index: route.params.index,
+      })
+    );
+
+    return JSON.parse(p);
+  };
+
+  const changePromise = async () => {
     if (changed) {
       setChanged(false);
-      const p = await changePlace(trip_id);
+      const p = await changePlanDetailOne();
       setChanged(true);
-      setPlaces(p);
+      setDetails(p);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ backgroundColor: "tomato" }}
+    <View
+      style={{ backgroundColor: "white" }}
       keyboardVerticalOffset={200}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      <TouchableOpacity
+        style={{ marginTop: 20, marginLeft: 330 }}
+        onPress={() =>
+          navigation.push("TravelGraph", {
+            trip_id: route.params.trip_id,
+          })
+        }
+      >
+        <AntDesign name="rightcircle" size={46} color="black" />
+      </TouchableOpacity>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View
           style={{
             backgroundColor: "#cfd4da",
             borderRadius: 20,
             height: 550,
-            marginTop: 70,
+            marginTop: 20,
+            marginBottom: 50,
             marginLeft: 30,
             marginRight: 30,
             alignItems: "center",
@@ -67,37 +149,74 @@ export const Destination = ({ navigation, route }) => {
           <View style={{ flexDirection: "row" }}>
             <Image
               source={require("../icon/none_image.png")}
-              style={{ height: 120, width: 120, marginLeft: 10, marginTop: 40 }}
-            ></Image>
-
-            <TextInput
               style={{
-                fontSize: 20,
+                height: 120,
+                width: 120,
                 marginLeft: 10,
-                marginRight: 10,
-                marginTop: 80,
-                width: 150,
-                height: 40,
-                borderBottomWidth: 1,
+                marginTop: 30,
               }}
-              onChangeText={(text) => {}}
-            >
-              여행지 입력
-            </TextInput>
+            ></Image>
             <TouchableOpacity
-              style={{ marginTop: 90, marginRight: 5 }}
               onPress={() =>
-                navigation.navigate("Tourist", {
+                navigation.push("Tourist", {
                   trip_id: route.params.trip_id,
+                  plan_id: route.params.plan_id,
+                  index: route.params.index,
+                  isNew: route.params.isNew,
                 })
               }
             >
+              <Text
+                style={{
+                  fontSize: 20,
+                  marginLeft: 10,
+                  marginRight: 10,
+                  marginTop: 80,
+                  width: 150,
+                  height: 40,
+                  borderBottomWidth: 1,
+                }}
+                onChangeText={(text) => {}}
+              >
+                {route.params.placeName === undefined
+                  ? "여행지 목록"
+                  : route.params.placeName}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginTop: 90, marginRight: 5 }}>
               <AntDesign name="download" size={34} color="black" />
             </TouchableOpacity>
           </View>
+
+          <View style={{ marginTop: 10, alignItems: "center", fontSize: 15 }}>
+            <Text>날짜</Text>
+            <View style={{ flexDirection: "row", marginTop: 10 }}>
+              <View
+                style={{
+                  borderRadius: 20,
+                  width: 100,
+                  height: 22,
+                  backgroundColor: "#bbb",
+                  alignItems: "center",
+                }}
+              >
+                <TextInput
+                  style={{
+                    width: 80,
+                    height: 22,
+                  }}
+                  onChangeText={(text) => {
+                    updatePlanDetailOneDate(text);
+                  }}
+                >
+                  {details !== undefined ? details.date : null}
+                </TextInput>
+              </View>
+            </View>
+          </View>
           <View>
-            <View style={{ marginTop: 30, alignItems: "center", fontSize: 15 }}>
-              <Text>날짜 </Text>
+            <View style={{ marginTop: 10, alignItems: "center", fontSize: 15 }}>
+              <Text>시간</Text>
               <View style={{ flexDirection: "row", marginTop: 10 }}>
                 <View
                   style={{
@@ -113,11 +232,13 @@ export const Destination = ({ navigation, route }) => {
                       width: 80,
                       height: 22,
                     }}
+                    onChangeText={(text) => {
+                      updatePlanDetailOneStartTime(text);
+                    }}
                   >
-                    20230126
+                    {details !== undefined ? details.startTime : null}
                   </TextInput>
                 </View>
-
                 <Text style={{ marginLeft: 10, marginRight: 10 }}>~</Text>
                 <View
                   style={{
@@ -133,8 +254,11 @@ export const Destination = ({ navigation, route }) => {
                       width: 80,
                       height: 22,
                     }}
+                    onChangeText={(text) => {
+                      updatePlanDetailOneEndTime(text);
+                    }}
                   >
-                    20230126
+                    {details !== undefined ? details.endTime : null}
                   </TextInput>
                 </View>
               </View>
@@ -143,7 +267,7 @@ export const Destination = ({ navigation, route }) => {
               <View
                 style={{
                   alignItems: "center",
-                  marginTop: 20,
+                  marginTop: 15,
                   marginBottom: 10,
                   fontSize: 15,
                 }}
@@ -154,7 +278,7 @@ export const Destination = ({ navigation, route }) => {
                 style={{
                   borderRadius: 20,
                   width: 300,
-                  height: 220,
+                  height: 200,
                   backgroundColor: "#bbb",
                 }}
               >
@@ -169,15 +293,17 @@ export const Destination = ({ navigation, route }) => {
                     }}
                     multiline={true}
                     onChangeText={(text) => {
-                      setDetail(text);
+                      updatePlanDetailOnedetails(text);
                     }}
-                  ></TextInput>
+                  >
+                    {details !== undefined ? details.details : null}
+                  </TextInput>
                 </View>
               </View>
             </View>
           </View>
         </View>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
