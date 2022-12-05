@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Text, View, TouchableOpacity, ScrollView } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { styles } from "../Styles";
+import { PostTools } from "./PostTool";
 
 const path1 = { name: "여행 경로 1", count: 0, voted: false };
 const path2 = { name: "여행 경로 2", count: 0, voted: false };
@@ -22,8 +23,17 @@ const pathArray = new Array(
   path8
 );
 
-export const Vote = () => {
+const postTool = new PostTools();
+
+// trip_id, plan_id, members[member_id]
+
+export const Vote = ({ navigation, route }) => {
   const [paths, setPaths] = useState(pathArray);
+
+  // useEffect(() => {
+  //   const members =
+  // }, []);
+
   const countUp = (key) => {
     const newPaths = [...paths];
     newPaths[key].count = newPaths[key].count + 1;

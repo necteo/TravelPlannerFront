@@ -1,9 +1,9 @@
 import { combineReducers } from "redux";
-import { createStore } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 import checkNew from "./checkNew";
 
 const rootReducer = combineReducers({ checkNew });
 
-const store = createStore(rootReducer);
+const store = configureStore({ reducer: rootReducer });
 
 export default store;

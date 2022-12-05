@@ -9,6 +9,7 @@ import {
   TextInput,
   Pressable,
   Alert,
+  Image,
 } from "react-native";
 import { RadioButton } from "react-native-paper";
 import { SwipeListView } from "react-native-swipe-list-view";
@@ -16,7 +17,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { styles } from "../Styles";
 import { PostTools } from "./PostTool";
 
-const postTool = new PostTools();
+var postTool = new PostTools();
 //read Place
 
 export const Tourist = ({ navigation, route }) => {
@@ -31,8 +32,10 @@ export const Tourist = ({ navigation, route }) => {
   // changePromise();
   // trip_id로 place list 가져오기
   useEffect(() => {
+    navigation.setOptions({ headerLeft });
     const read = async () => {
       const p = await readPlaces();
+      console.log(p);
       setPlaces(p);
     };
     read();
@@ -42,6 +45,15 @@ export const Tourist = ({ navigation, route }) => {
     console.log("useEffect : " + changed);
     changePromise(route.params.trip_id);
   }, [places]);
+
+  const headerLeft = () => (
+    <TouchableOpacity onPress={() => navigation.popToTop()}>
+      <Image
+        source={require("../icon/brandIcon.png")}
+        style={{ width: 45, height: 35 }}
+      ></Image>
+    </TouchableOpacity>
+  );
 
   const readPlaces = async () => {
     const p = await postTool.postWithData(
@@ -83,9 +95,6 @@ export const Tourist = ({ navigation, route }) => {
         trip_id: trip_id,
       })
     );
-    console.log(JSON.parse(a));
-    console.log("123");
-
     return JSON.parse(a);
   };
 
@@ -98,14 +107,47 @@ export const Tourist = ({ navigation, route }) => {
     }
   };
 
+  const selectPlace = async (trip_id, plan_id, place_id, place_name, index) => {
+    const a = await postTool.postWithDataForOt(
+      "Place/select",
+      JSON.stringify({
+        trip_id: trip_id,
+        plan_id: plan_id,
+        place_id: place_id,
+        place_name: place_name,
+        index: index,
+      })
+    );
+    return JSON.parse(a);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <SwipeListView
         data={places}
         renderItem={({ item }) => (
-          <View style={styles.swipeListItem}>
-            <Text>{item.name}</Text>
-          </View>
+          <Pressable
+            onPress={() => {
+              selectPlace(
+                route.params.trip_id,
+                route.params.plan_id,
+                item.place_id,
+                item.name,
+                route.params.index
+              );
+              navigation.push("Destination", {
+                trip_id: route.params.trip_id,
+                placeName: item.name,
+                plan_id: route.params.plan_id,
+                index: route.params.index,
+                isNew: route.params.isNew,
+              });
+            }}
+          >
+            <View style={styles.swipeListItem}>
+              <Text>{item.name}</Text>
+            </View>
+          </Pressable>
         )}
         renderHiddenItem={(data, rowMap) => (
           <View style={styles.swipeHiddenItemContainer}>
